@@ -32,10 +32,11 @@ filter_names = np.array([
 ])
 
 # termcolor colors.
-colors = [
-        'red', 'green', 'blue', 'yellow',
-        'grey', 'magenta', 'cyan', 'white'
-    ]
+colors = ['green']
+# colors = [
+#     'red', 'green', 'blue', 'yellow',
+#     'grey', 'magenta', 'cyan', 'white'
+# ]
 
 # Isochrone mask array.
 iso_mask = np.array([
