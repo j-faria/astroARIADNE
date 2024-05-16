@@ -2,6 +2,7 @@
 
 __all__ = ['SEDPlotter']
 
+import os
 import glob
 import pickle
 from random import choice
@@ -97,8 +98,8 @@ class SEDPlotter:
 
     __wav_file = 'PHOENIXv2/WAVE_PHOENIX-ACES-AGSS-COND-2011.fits'
 
-    def __init__(self, input_files, out_folder, pdf=False,
-                 model=None, settings=None, method='averaged',
+    def __init__(self, input_files, out_folder, models_dir=None,
+                 pdf=False, model=None, settings=None, method='averaged',
                  save_model=False, ir_excess=False):
         """See class docstring."""
         print('\nInitializing plotter.\n')
@@ -118,7 +119,7 @@ class SEDPlotter:
         histograms = f'{out_folder}/histograms'
         self.traces_out = traces
         self.hist_out = histograms
-        self.moddir = modelsdir
+        self.moddir = models_dir or modelsdir
         self.settings_dir = settings
 
         # Read output files.
@@ -562,7 +563,7 @@ class SEDPlotter:
 
         # SED plot.
         if self.grid == 'phoenix':
-            wave = fits.open(self.moddir + self.__wav_file)[0].data
+            wave = fits.open(os.path.join(self.moddir, self.__wav_file))[0].data
             wave *= u.angstrom.to(u.um)
 
             lower_lim = 0.125 < wave
@@ -1170,8 +1171,8 @@ class SEDPlotter:
                 ax = axes[yi, xi]
                 if xi == 0:
                     for tick in ax.yaxis.get_major_ticks():
-                        tick.label.set_fontsize(self.corner_tick_fontsize)
-                        tick.label.set_fontname(self.fontname)
+                        # tick.label.set_fontsize(self.corner_tick_fontsize)
+                        # tick.label.set_fontname(self.fontname)
                         ax.set_ylabel(
                             labels[yi],
                             labelpad=self.corner_labelpad,
@@ -1180,8 +1181,8 @@ class SEDPlotter:
                         )
                 if yi == theta.shape[0] - 1:
                     for tick in ax.xaxis.get_major_ticks():
-                        tick.label.set_fontsize(self.corner_tick_fontsize)
-                        tick.label.set_fontname(self.fontname)
+                        # tick.label.set_fontsize(self.corner_tick_fontsize)
+                        # tick.label.set_fontname(self.fontname)
                         ax.set_xlabel(
                             labels[xi],
                             labelpad=self.corner_labelpad,
@@ -1199,9 +1200,9 @@ class SEDPlotter:
                 fontsize=self.corner_fontsize,
                 fontname=self.fontname
             )
-            for tick in axes[-1, -1].xaxis.get_major_ticks():
-                tick.label.set_fontsize(self.corner_tick_fontsize)
-                tick.label.set_fontname(self.fontname)
+            # for tick in axes[-1, -1].xaxis.get_major_ticks():
+            #     tick.label.set_fontsize(self.corner_tick_fontsize)
+            #     tick.label.set_fontname(self.fontname)
 
             if self.pdf:
                 plt.savefig(f'{self.out_folder}/CORNER.pdf',
@@ -1233,7 +1234,7 @@ class SEDPlotter:
         sel_teff = int(np.unique(self.star.teff)[select_teff])
         sel_logg = np.unique(self.star.logg)[select_logg]
         sel_z = np.unique(self.star.z)[select_z]
-        selected_SED = self.moddir + 'PHOENIXv2/Z'
+        selected_SED = os.path.join(self.moddir, 'PHOENIXv2', 'Z')
         metal_add = ''
         if sel_z < 0:
             metal_add = str(sel_z)
@@ -1285,9 +1286,8 @@ class SEDPlotter:
             metal_add = '-0.0'
         if sel_z > 0:
             metal_add = '+' + str(sel_z)
-        selected_SED = self.moddir + 'BTSettl/AGSS2009/lte'
-        selected_SED += str(sel_teff) if len(str(sel_teff)) == 3 else \
-            '0' + str(sel_teff)
+        selected_SED = os.path.join(self.moddir, 'BTSettl/AGSS2009/lte')
+        selected_SED += str(sel_teff) if len(str(sel_teff)) == 3 else '0' + str(sel_teff)
         selected_SED += '-' + str(sel_logg) + metal_add + 'a+*'
         gl = glob.glob(selected_SED)
         selected_SED = gl[0]
@@ -1415,7 +1415,7 @@ class SEDPlotter:
             metal_add = 'p' + str(sel_z).replace('.', '')
         name = 'ck' + metal_add
         lgg = 'g{:.0f}'.format(sel_logg * 10)
-        selected_SED = self.moddir + 'Castelli_Kurucz/' + name + '/' + name
+        selected_SED = os.path.join(self.moddir, 'Castelli_Kurucz', name, name)
         selected_SED += '_' + str(sel_teff) + '.fits'
         tab = Table(fits.open(selected_SED)[1].data)
         wave = np.array(tab['WAVELENGTH'].tolist()) * u.angstrom.to(u.um)
@@ -1455,7 +1455,7 @@ class SEDPlotter:
             metal_add = 'p' + str(sel_z).replace('.', '')
         name = 'k' + metal_add
         lgg = 'g{:.0f}'.format(sel_logg * 10)
-        selected_SED = self.moddir + 'Kurucz/' + name + '/' + name
+        selected_SED = os.path.join(self.moddir, 'Kurucz', name, name)
         selected_SED += '_' + str(sel_teff) + '.fits'
         tab = Table(fits.open(selected_SED)[1].data)
         wave = np.array(tab['WAVELENGTH'].tolist()) * u.angstrom.to(u.um)
