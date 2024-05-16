@@ -130,7 +130,7 @@ class Star:
         'Bayestar': BayestarQuery,
     }
 
-    def __init__(self, starname, ra, dec, g_id=None,
+    def __init__(self, starname, ra, dec, g_id=None, search_radius=3 * u.arcmin,
                  plx=None, plx_e=None, rad=None, rad_e=None,
                  temp=None, temp_e=None, lum=None, lum_e=None,
                  dist=None, dist_e=None, Av=None, Av_e=None,
@@ -171,6 +171,8 @@ class Star:
 
         self.g_id = g_id
 
+        self.search_radius = search_radius << u.arcmin
+
         # Lookup archival magnitudes, radius, temperature, luminosity
         # and parallax
         lookup = self.get_rad + self.get_temp + self.get_plx \
@@ -183,8 +185,9 @@ class Star:
                         colored('\t\t*** LOOKING UP ARCHIVAL INFORMATION ***',
                                 c)
                     )
-                lib = Librarian(starname, self.ra, self.dec, g_id=self.g_id,
-                                mags=self.get_mags, ignore=ignore)
+                self.librarian = lib = Librarian(starname, self.ra, self.dec, g_id=self.g_id,
+                                                 mags=self.get_mags, ignore=ignore, 
+                                                 radius=self.search_radius)
                 self.g_id = lib.g_id
                 self.tic = lib.tic
                 self.kic = lib.kic
@@ -414,9 +417,11 @@ class Star:
                 ('var2', float),
                 ('var3', float)
             ])
-        master['var1'] = filt
-        master['var2'] = mags
-        master['var3'] = ers
+
+        sort_filt = np.argsort(filt)
+        master['var1'] = filt[sort_filt]
+        master['var2'] = mags[sort_filt]
+        master['var3'] = ers[sort_filt]
         headers = ['Filter', 'Magnitude', 'Uncertainty']
         return master, headers
 
