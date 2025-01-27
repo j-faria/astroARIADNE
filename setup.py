@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-try:
-    from setuptools import (setup, find_packages)
-except ImportError:
-    from distutils.core import (setup, find_packages)
+from setuptools import (setup, find_namespace_packages)
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
     name="astroARIADNE",
-    version="1.0.9",
+    version="1.1.2",
     author="Jose Vines",
     author_email="jose.vines@ug.uchile.cl",
     maintainer="Jose Vines",
@@ -21,7 +18,7 @@ setup(
     long_description_content_type="text/markdown",
     license="MIT",
     url="https://github.com/jvines/astroARIADNE",
-    packages=find_packages(),
+    packages=find_namespace_packages(),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         'Intended Audience :: Science/Research',
@@ -33,7 +30,9 @@ setup(
         "Topic :: Scientific/Engineering :: Astronomy"
     ],
     requires=["numpy", "scipy", "matplotlib", "astropy", "astroquery",
-              "tqdm", "regions", "pyphot", "PyAstronomy", "termcolor"],
+              "tqdm", "regions", "PyAstronomy", "termcolor",
+              "dustmaps", "pandas", "numba", "isochrones", "dynesty",
+              "h5py", "tabulate"],
     package_data={'astroARIADNE': ['Datafiles']},
     include_package_data=True,
     python_requires='>=3.7',
